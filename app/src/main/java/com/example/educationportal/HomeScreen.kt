@@ -1,5 +1,6 @@
 package com.example.educationportal
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
@@ -28,10 +29,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.educationportal.ui.theme.EducationPortalTheme
+import com.google.gson.Gson
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavHostController) {
+fun HomeScreen(navController: NavHostController, pdfViewModel: PdfViewModel) {
     EducationPortalTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
@@ -68,7 +70,7 @@ fun HomeScreen(navController: NavHostController) {
                         state = listState
                     ) {
                         items(items = books) { book ->
-                            Book(model = book, navController = navController)
+                            Book(model = book, navController = navController, pdfViewModel = pdfViewModel)
                             Spacer(modifier = Modifier.height(24.dp))
                         }
                     }
@@ -81,50 +83,56 @@ fun HomeScreen(navController: NavHostController) {
 
 val DEFAULT_BOOKS = listOf(
     BookModel(
-        title = "Computer",
+        title = "CProgramming",
         author = "Gabrielle Zevin",
         pageCount = 416,
-        "https://myreport.altervista.org/Lorem_Ipsum.pdf"
+        "http://catalog.yale.edu/gsas/degree-granting-departments-programs/computer-science/computer-science.pdf"
     ),
     BookModel(
-        title = "Electrical",
+        title = "Corrosion",
         author = "R.F. Kuang", pageCount = 545,
-        "https://myreport.altervista.org/Lorem_Ipsum.pdf"
+        "http://catalog.yale.edu/ycps/subjects-of-instruction/electrical-engineering/electrical-engineering.pdf"
     ),
     BookModel(
-        title = "Linux Administration",
+        title = "EngineeringDrawing",
         author = "Stephen King",
         pageCount = 500,
-        "https://myreport.altervista.org/Lorem_Ipsum.pdf"
+        "www.tutorialspoint.com/linux_admin/linux_admin_tutorial.pdf"
     ),
     BookModel(
+        title = "Physics",
+        author = "Stephen King",
+        pageCount = 500,
+        "www.tutorialspoint.com/linux_admin/linux_admin_tutorial.pdf"
+    ),
+   /* BookModel(
         title = "Networking", author = "Emily St. John Mandel", pageCount = 272,
-        "https://myreport.altervista.org/Lorem_Ipsum.pdf"
+        "docs.oracle.com/cd/E19457-01/801-6632/801-6632.pdf"
     ),
     BookModel(
         title = "Data Science", author = "Leila Mottley", pageCount = 387,
-        "https://myreport.altervista.org/Lorem_Ipsum.pdf"
+        "srdas.github.io/Papers/DSA_Book.pdf"
     ),
     BookModel(
         title = "Artificial Intelligence", author = "Kate Quinn", pageCount = 435,
-        "https://myreport.altervista.org/Lorem_Ipsum.pdf"
+        "www.vssut.ac.in/lecture_notes/lecture1428643004.pdf"
     ),
     BookModel(
         title = "Big Data", author = "James S. A. Corey", pageCount = 528,
-        "https://myreport.altervista.org/Lorem_Ipsum.pdf"
+        "mrcet.com/downloads/digital_notes/IT/(R17A0528)%20BIG%20DATA%20ANALYTICS.pdf"
     ),
     BookModel(
         title = "Web Technology", author = "Johann Hari", pageCount = 357,
-        "https://myreport.altervista.org/Lorem_Ipsum.pdf"
+        "www.rgmcet.edu.in/assets/img/departments/CSE/materials/R15/3-2/Web%20Technologies.pdf"
     ),
     BookModel(
         title = "Software Development", author = "Johann Hari", pageCount = 357,
-        "https://myreport.altervista.org/Lorem_Ipsum.pdf"
+        "www.vssut.ac.in/lecture_notes/lecture1428551142.pdf"
     ),
     BookModel(
         title = "Manual Testing", author = "Johann Hari", pageCount = 357,
-        "https://myreport.altervista.org/Lorem_Ipsum.pdf"
-    )
+        "www.cs.uct.ac.za/mit_notes/software/pdfs/Chp09.pdf"
+    )*/
 )
 
 data class BookModel(
@@ -136,11 +144,12 @@ data class BookModel(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Book(modifier: Modifier = Modifier, model: BookModel, navController: NavHostController) =
+fun Book(modifier: Modifier = Modifier, model: BookModel, navController: NavHostController, pdfViewModel: PdfViewModel) =
     Card(
         onClick = {
             // inside on click we are displaying the toast message.
-            navController.navigate("${Screens.Course.route}?pdfUrl=${model.bookLink}")
+            navController.navigate(Screens.Course.route)
+            pdfViewModel.updateBookData(model)
         },
         modifier = modifier
             .fillMaxWidth()

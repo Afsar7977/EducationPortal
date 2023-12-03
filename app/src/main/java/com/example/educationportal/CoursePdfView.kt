@@ -1,5 +1,7 @@
 package com.example.educationportal
 
+import android.content.Context
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,7 +15,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.rememberScaffoldState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -22,28 +23,57 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.rizzi.bouquet.ResourceType
 import com.rizzi.bouquet.VerticalPDFReader
 import com.rizzi.bouquet.VerticalPdfReaderState
 import com.rizzi.bouquet.rememberVerticalPdfReaderState
+import java.io.File
+import java.io.IOException
+import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CoursePdfView(navHostController: NavHostController, pdfUrl: String?) {
+fun CoursePdfView(navHostController: NavHostController, pdfViewModel: PdfViewModel) {
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
         // on below line we are specifying theme as scaffold.
+        var filePath = ""
+        var pdfUri : Uri? = null
         Column(
             modifier = Modifier
                 .fillMaxSize()
         ) {
             //resource = ResourceType.Remote("https://myreport.altervista.org/Lorem_Ipsum.pdf"),
+            val bookTitle = pdfViewModel.bookData.value?.title
+            when (bookTitle?.lowercase(Locale.ROOT)) {
+                "cprogramming" -> {
+                    filePath =
+                        getFileFromAssets(LocalContext.current, "c_progrmaming.pdf").absolutePath
+                }
+
+                "corrosion" -> {
+                    filePath = getFileFromAssets(LocalContext.current, "corrosion.pdf").absolutePath
+                }
+
+                "engineeringdrawing" -> {
+                    filePath = getFileFromAssets(
+                        LocalContext.current,
+                        "engineering_drawing.pdf"
+                    ).absolutePath
+                }
+
+                "physics" -> {
+                     pdfUri = Uri.fromFile(File("//android_asset/physics.pdf"))
+
+                    filePath = getFileFromAssets(LocalContext.current, "physics.pdf").absolutePath
+                }
+            }
             val pdfState = rememberVerticalPdfReaderState(
-                resource = ResourceType.Remote(url = pdfUrl!!),
+                resource = ResourceType.Local(pdfUri!!),
                 isZoomEnable = true
             )
             /*VerticalPDFReader(
@@ -132,3 +162,15 @@ fun PDFView(
         }
     }
 }
+
+@Throws(IOException::class)
+fun getFileFromAssets(context: Context, fileName: String): File = File(context.cacheDir, fileName)
+    .also {
+        if (!it.exists()) {
+            it.outputStream().use { cache ->
+                context.assets.open(fileName).use { inputStream ->
+                    inputStream.copyTo(cache)
+                }
+            }
+        }
+    }
